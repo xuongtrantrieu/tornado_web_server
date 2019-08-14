@@ -1,0 +1,6 @@
+tornado_web_server_venv
+.idea
+.ipynb_checkpoints
+.env
+*.ipynb
+.mypy_cache
