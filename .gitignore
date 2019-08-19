@@ -4,3 +4,4 @@ tornado_web_server_venv
 .env
 *.ipynb
 .mypy_cache
+__pycache__
