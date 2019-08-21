@@ -2,7 +2,7 @@ from tornado.web import RequestHandler
 from utils import make_response, get_json, get_params
 
 
-class HelloWorld(RequestHandler):
+class HelloWorldHandler(RequestHandler):
     def get(self):
         self.hello_world()
 
