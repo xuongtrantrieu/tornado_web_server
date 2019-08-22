@@ -17,7 +17,7 @@ class MessageBuffer:
         result: List[dict] = []
         for message in reversed(self.cache):
             id_ = message['id']
-            if id_ == cursor:
+            if cursor and id_ == cursor:
                 break
 
             result.append(message)
@@ -30,6 +30,7 @@ class MessageBuffer:
         self.cache.append(message)
         if len(self.cache) > self.cache_size:
             self.cache = self.cache[-self.cache_size:]
+        self.condition.notify_all()
 
 
 GLOBAL_MESSAGE_BUFFER = MessageBuffer()
@@ -43,7 +44,7 @@ class MessageHandler(RequestHandler):
 class MessageNewHandler(RequestHandler):
     def post(self):
         message = dict(
-            id=make_id(),
+            id=make_id().hex,
             body=self.get_argument('body') or ''
         )
         GLOBAL_MESSAGE_BUFFER.add_message(message)
@@ -55,10 +56,12 @@ class MessageUpdateHandler(RequestHandler):
         super().__init__(*args, **kwargs)
         self.waiting_futures: Union[None, Awaitable] = None
 
-    async def post(self):
+    async def get(self):
         cursor = self.get_argument('cursor') or ''
-        messages = GLOBAL_MESSAGE_BUFFER.get_message_since(cursor)
-        while not messages:
+        while True:
+            messages = GLOBAL_MESSAGE_BUFFER.get_message_since(cursor)
+            if messages: break
+
             self.waiting_futures = GLOBAL_MESSAGE_BUFFER.condition.wait()
             try:
                 await self.waiting_futures
@@ -73,3 +76,7 @@ class MessageUpdateHandler(RequestHandler):
 
     def on_connection_close(self):
         self.waiting_futures.cancel()
+
+    def delete(self):
+        GLOBAL_MESSAGE_BUFFER.cache = []
+        self.write(make_response(message='Message clear!'))

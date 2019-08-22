@@ -10,13 +10,12 @@ APP = Application()
 def load_app():
     from handlers import (
         HelloWorldHandler,
-        MessageHandler, MessageNewHandler, MessageUpdateHandler,
+        MessageNewHandler, MessageUpdateHandler,
     )
 
     APP.listen(8000)
     APP.add_handlers(r'www\.xuong\.com', [
         (r'/', HelloWorldHandler),
-        (r'/message', MessageHandler),
         (r'/message/new', MessageNewHandler),
-        (r'/message/update', MessageUpdateHandler),
+        (r'/message', MessageUpdateHandler),
     ])
