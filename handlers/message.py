@@ -1,5 +1,6 @@
 from tornado.locks import Condition
-from tornado.web import RequestHandler
+# from tornado.web import RequestHandler
+from cores.tornado import RequestHandler
 from tornado.iostream import BaseIOStream
 from uuid import uuid4 as make_id
 from typing import List, Awaitable, Union
